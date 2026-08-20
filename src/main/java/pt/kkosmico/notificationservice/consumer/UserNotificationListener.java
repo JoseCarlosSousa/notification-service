@@ -40,7 +40,7 @@ public class UserNotificationListener {
             email.setText("Hello " + event.getName() + ",\n\nBest regards,\nThe Quality Team");
 
             // 🚀 Dispatching email pipeline down the wire
-            mailSender.send(email);
+            //mailSender.send(email);
 
 
             log.info("=========================================");
