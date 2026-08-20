@@ -1,0 +1,53 @@
+# ==========================================
+# GLOBAL & DEFAULT CONFIGURATION (PRODUCTION)
+# ==========================================
+server:
+  port: ${PORT:8081} # Uses 8081 locally to avoid conflict with user-service (8080)
+  address: 0.0.0.0
+
+spring:
+  profiles:
+    active: prod # Set production as the default profile for cloud deployment
+
+  rabbitmq:
+    addresses: ${SPRING_RABBITMQ_ADDRESSES} # Kept exactly as you have it on Render
+    template:
+      retry:
+        enabled: true
+        initial-interval: 3000ms
+        max-attempts: 3
+    listener:
+      simple:
+        initialize-consumers: true
+
+---
+# ==========================================
+# OVERRIDES FOR LOCAL DEVELOPMENT ENVIRONMENT
+# ==========================================
+spring:
+  config:
+    active: local # Active when running locally with -Dspring.profiles.active=local
+  json:
+    value:
+      default:
+        type: pt.kkosmico.notificationservice.dto.UserCreatedEvent
+
+  rabbitmq:
+    addresses: null # Clears the cloud variable to enforce local parameters
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+    virtual-host: /
+  # ... keeping your current profiles and rabbitmq config untouched
+  mail:
+    host: sandbox.smtp.mailtrap.io
+    port: 2525
+    username: ${SPRING_MAIL_USERNAME:00f3b163bab987} # Fallback to your Mailtrap username
+    password: ${SPRING_MAIL_PASSWORD:b31ded122894b4} # Click show/copy on Mailtrap for the full password
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
