@@ -4,10 +4,10 @@
 server:
   port: ${PORT:8081} # Uses 8081 locally to avoid conflict with user-service (8080)
   address: 0.0.0.0
+  error:
+    include-message: always
 
 spring:
-  profiles:
-    active: prod # Set production as the default profile for cloud deployment
   datasource:
     url: ${SPRING_DATASOURCE_URL}
     username: ${SPRING_DATASOURCE_USERNAME}
@@ -17,7 +17,7 @@ spring:
     hibernate:
       ddl-auto: update
   rabbitmq:
-    addresses: ${SPRING_RABBITMQ_ADDRESSES} # Kept exactly as you have it on Render
+    addresses: ${SPRING_RABBITMQ_ADDRESSES:-}
     template:
       retry:
         enabled: true
@@ -45,7 +45,8 @@ spring:
 # ==========================================
 spring:
   config:
-    active: local # Active when running locally with -Dspring.profiles.active=local
+    activate:
+      on-profile: local
   json:
     value:
       default:
