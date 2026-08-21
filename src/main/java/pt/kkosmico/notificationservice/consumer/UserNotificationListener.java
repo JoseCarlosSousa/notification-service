@@ -11,6 +11,8 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 
 import pt.kkosmico.notificationservice.dto.UserCreatedEvent;
+import pt.kkosmico.notificationservice.model.UserRegistration;
+import pt.kkosmico.notificationservice.repository.UserRegistrationRepository;
 
 import java.nio.charset.StandardCharsets;
 
@@ -25,35 +27,58 @@ public class UserNotificationListener {
     @Autowired
     private JavaMailSender mailSender;
 
+    @Autowired
+    private UserRegistrationRepository repository;
+
     @RabbitListener(queues = "user.created.queue")
     public void onUserCreated(Message message) {
         try {
             String jsonMessage = new String(message.getBody(), StandardCharsets.UTF_8);
             UserCreatedEvent event = objectMapper.readValue(jsonMessage, UserCreatedEvent.class);
 
-            log.info("Processing user event for email dispatch: {}", event.getEmail());
+            //sendEmail(event);
+            sendToBD(jsonMessage, event);
 
-            // ✉️ Creating automated email structure parameters
-            SimpleMailMessage email = new SimpleMailMessage();
-            email.setTo(event.getEmail());
-            email.setSubject("Welcome to my service, " + event.getName() + "!");
-            email.setText("Hello " + event.getName() + ",\n\nBest regards,\nThe Quality Team");
-
-            // 🚀 Dispatching email pipeline down the wire
-            //mailSender.send(email);
-
-
-            log.info("=========================================");
-            log.info("SUCCESS: Automated welcome email dispatched to {}", event.getEmail());
-            log.info("=========================================");
-
-            // Free Plan Failed:
-            // SMTPSendFailedException: 550 5.7.0 Too many emails per second.
             Thread.sleep(2500);
-
 
         } catch (Exception e) {
             log.error("Failed to complete automated notification delivery pipeline", e);
         }
+    }
+
+    private void sendEmail(UserCreatedEvent event) {
+        log.info("Processing user event for email dispatch: {}", event.getEmail());
+
+        // ✉️ Creating automated email structure parameters
+        SimpleMailMessage email = new SimpleMailMessage();
+        email.setTo(event.getEmail());
+        email.setSubject("Welcome to my service, " + event.getName() + "!");
+        email.setText("Hello " + event.getName() + ",\n\nBest regards,\nThe Quality Team");
+
+        // 🚀 Dispatching email pipeline down the wire
+        mailSender.send(email);
+
+
+        log.info("=========================================");
+        log.info("SUCCESS: Automated welcome email dispatched to {}", event.getEmail());
+        log.info("=========================================");
+
+        // Free Plan Failed:
+        // SMTPSendFailedException: 550 5.7.0 Too many emails per second.
+    }
+
+    private void sendToBD(String jsonMessage, UserCreatedEvent event) {
+        UserRegistration registration = new UserRegistration();
+        registration.setName(event.getName());
+        registration.setEmail(event.getEmail());
+        registration.setToken(jsonMessage);
+        registration.setProcessed(false);
+
+        // 💾 Persisting into Railway online production database
+        repository.save(registration);
+
+        log.info("=========================================");
+        log.info("SUCCESS: Registration event persisted to MySQL Outbox for: {}", jsonMessage);
+        log.info("=========================================");
     }
 }
