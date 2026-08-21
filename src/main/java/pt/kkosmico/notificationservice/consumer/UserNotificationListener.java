@@ -71,7 +71,6 @@ public class UserNotificationListener {
         UserRegistration registration = new UserRegistration();
         registration.setName(event.getName());
         registration.setEmail(event.getEmail());
-        registration.setToken(jsonMessage);
         registration.setProcessed(false);
 
         // 💾 Persisting into Railway online production database

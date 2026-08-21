@@ -15,9 +15,6 @@ public class UserRegistration {
     private Long id;
 
     @Column(nullable = false)
-    private String token;
-
-    @Column(nullable = false)
     private String name;
 
     @Column(nullable = false)
