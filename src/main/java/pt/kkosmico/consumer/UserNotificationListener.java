@@ -1,6 +1,11 @@
-package pt.kkosmico.notificationservice.consumer;
+package pt.kkosmico.consumer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import pt.kkosmico.dto.UserCreatedEvent;
+import pt.kkosmico.model.UserRegistration;
+import pt.kkosmico.repository.UserRegistrationRepository;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.Message;
@@ -9,10 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
-
-import pt.kkosmico.notificationservice.dto.UserCreatedEvent;
-import pt.kkosmico.notificationservice.model.UserRegistration;
-import pt.kkosmico.notificationservice.repository.UserRegistrationRepository;
 
 import java.nio.charset.StandardCharsets;
 
@@ -24,7 +25,8 @@ public class UserNotificationListener {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @Autowired
+    @SuppressWarnings("unused")
+	@Autowired
     private JavaMailSender mailSender;
 
     @Autowired
@@ -36,7 +38,7 @@ public class UserNotificationListener {
             String jsonMessage = new String(message.getBody(), StandardCharsets.UTF_8);
             UserCreatedEvent event = objectMapper.readValue(jsonMessage, UserCreatedEvent.class);
 
-            //sendEmail(event);
+            sendEmail(event);
             sendToBD(jsonMessage, event);
 
             Thread.sleep(2500);
@@ -46,17 +48,17 @@ public class UserNotificationListener {
         }
     }
 
-    private void sendEmail(UserCreatedEvent event) {
+	private void sendEmail(UserCreatedEvent event) {
         log.info("Processing user event for email dispatch: {}", event.getEmail());
 
         // ✉️ Creating automated email structure parameters
         SimpleMailMessage email = new SimpleMailMessage();
         email.setTo(event.getEmail());
-        email.setSubject("Welcome to my service, " + event.getName() + "!");
-        email.setText("Hello " + event.getName() + ",\n\nBest regards,\nThe Quality Team");
+        email.setSubject("Welcome to my service, " + event.getFirstName() + " " + event.getLastName() +  "!");
+        email.setText("Hello " + event.getFirstName() + ",\n\nBest regards,\nThe Quality Team");
 
         // 🚀 Dispatching email pipeline down the wire
-        mailSender.send(email);
+        //mailSender.send(email);
 
 
         log.info("=========================================");
@@ -69,8 +71,7 @@ public class UserNotificationListener {
 
     private void sendToBD(String jsonMessage, UserCreatedEvent event) {
         UserRegistration registration = new UserRegistration();
-        registration.setName(event.getName());
-        registration.setEmail(event.getEmail());
+        registration.setUserId(event.getId());
         registration.setProcessed(false);
 
         // 💾 Persisting into Railway online production database

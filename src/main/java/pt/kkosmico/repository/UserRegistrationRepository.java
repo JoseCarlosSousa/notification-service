@@ -1,8 +1,9 @@
-package pt.kkosmico.notificationservice.repository;
+package pt.kkosmico.repository;
 
-import pt.kkosmico.notificationservice.model.UserRegistration;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+
+import pt.kkosmico.model.UserRegistration;
 
 @Repository
 public interface UserRegistrationRepository extends JpaRepository<UserRegistration, Long> {

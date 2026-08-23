@@ -2,20 +2,25 @@
 # GLOBAL & DEFAULT CONFIGURATION (PRODUCTION)
 # ==========================================
 server:
-  port: ${PORT:8081} # Uses 8081 locally to avoid conflict with user-service (8080)
+  port: ${PORT:8081}
   address: 0.0.0.0
   error:
     include-message: always
 
 spring:
+  profiles:
+    active: local
+
   datasource:
-    url: ${SPRING_DATASOURCE_URL}
-    username: ${SPRING_DATASOURCE_USERNAME}
-    password: ${SPRING_DATASOURCE_PASSWORD}
+    url: ${SPRING_DATASOURCE_URL:-jdbc:mysql://localhost:3306/user_service_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true}
+    username: ${SPRING_DATASOURCE_USERNAME:-root}
+    password: ${SPRING_DATASOURCE_PASSWORD:-rootroot}
+  
   jpa:
     open-in-view: false
     hibernate:
       ddl-auto: update
+  
   rabbitmq:
     addresses: ${SPRING_RABBITMQ_ADDRESSES:-}
     template:
@@ -28,10 +33,10 @@ spring:
         initialize-consumers: true
         
   mail:
-    host: ${SPRING_MAIL_HOST}
+    host: ${SPRING_MAIL_HOST:-sandbox.smtp.mailtrap.io}
     port: ${SPRING_MAIL_PORT:2525}
-    username: ${SPRING_MAIL_USERNAME}
-    password: ${SPRING_MAIL_PASSWORD}
+    username: ${SPRING_MAIL_USERNAME:-00f3b163bab987}
+    password: ${SPRING_MAIL_PASSWORD:-b31ded122894b4}
     properties:
       mail:
         smtp:
@@ -47,30 +52,16 @@ spring:
   config:
     activate:
       on-profile: local
-  json:
-    value:
-      default:
-        type: pt.kkosmico.notificationservice.dto.UserCreatedEvent
-  datasource:
-    url: jdbc:mysql://localhost:3306/user_service_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
-    username: root
-    password: rootroot
+  # Don't need any more the package are the same in both projects:
+  #json:
+   # value:
+    #  default:
+     #   type: pt.kkosmico.notificationservice.dto.UserCreatedEvent
+
   rabbitmq:
-    addresses: null # Clears the cloud variable to enforce local parameters
+    addresses: null
     host: localhost
     port: 5672
     username: guest
     password: guest
     virtual-host: /
-  # ... keeping your current profiles and rabbitmq config untouched
-  mail:
-    host: sandbox.smtp.mailtrap.io
-    port: 2525
-    username: ${SPRING_MAIL_USERNAME:00f3b163bab987} # Fallback to your Mailtrap username
-    password: ${SPRING_MAIL_PASSWORD:b31ded122894b4} # Click show/copy on Mailtrap for the full password
-    properties:
-      mail:
-        smtp:
-          auth: true
-          starttls:
-            enable: true

@@ -1,4 +1,4 @@
-package pt.kkosmico.notificationservice.model;
+package pt.kkosmico.model;
 
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -11,15 +11,13 @@ import lombok.Setter;
 public class UserRegistration {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private String id;
 
-    @Column(nullable = false)
-    private String name;
-
-    @Column(nullable = false)
-    private String email;
 
     @Column(nullable = false)
     private boolean processed = false;
+    
+    @Column(name = "user_id", nullable = false)
+    private String userId;
 }

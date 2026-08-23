@@ -1,11 +1,12 @@
-package pt.kkosmico.notificationservice.config;
+package pt.kkosmico.config;
 
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.amqp.support.converter.DefaultClassMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import pt.kkosmico.notificationservice.dto.UserCreatedEvent;
+
+import pt.kkosmico.dto.UserCreatedEvent;
 
 import java.util.HashMap;
 import java.util.Map;
