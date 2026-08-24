@@ -1,5 +1,7 @@
 package pt.kkosmico.model;
 
+import java.util.UUID;
+
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -12,12 +14,12 @@ public class UserRegistration {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private String id;
+    private UUID id;
 
 
     @Column(nullable = false)
     private boolean processed = false;
     
     @Column(name = "user_id", nullable = false)
-    private String userId;
+    private UUID userId;
 }
